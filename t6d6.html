@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <title></title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <style>
+      :root {
+        --bg1: #f4fbf7;
+        --bg2: #fef9ef;
+        --bg3: #eefcf7;
+        --card: #ffffffcc;
+        --text: #1f3b2f;
+        --muted: #5c7a6e;
+        --primary: #2bb673;
+        --primary-2: #37cfa6;
+        --accent: #ffd166;
+        --accent-2: #fca69a;
+        --shadow: 0 10px 30px rgba(35, 66, 58, 0.12);
+        --ring: rgba(55, 207, 166, 0.8);
+        --danger: #ff6b6b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        color: var(--text);
+        background:
+          radial-gradient(1000px 600px at 10% 10%, var(--bg3), transparent 70%),
+          radial-gradient(800px 500px at 90% 0%, var(--bg2), transparent 70%),
+          radial-gradient(1000px 800px at 50% 90%, var(--bg1), transparent 70%),
+          linear-gradient(180deg, #f7fdf9, #fcfbf6);
+      }
+
+      .app {
+        max-width: 1100px;
+        margin: 24px auto;
+        padding: 16px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 20px;
+      }
+
+      @media (max-width: 920px) {
+        .app {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+      }
+
+      .card {
+        background: var(--card);
+        backdrop-filter: blur(6px);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(43, 182, 115, 0.08);
+      }
+
+      .current {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .task-title {
+        font-weight: 700;
+        font-size: 28px;
+        line-height: 1.2;
+        letter-spacing: 0.2px;
+        color: var(--text);
+        min-height: 34px;
+      }
+
+      .timer-wrap {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 20px;
+        align-items: center;
+      }
+
+      @media (max-width: 600px) {
+        .timer-wrap {
+          grid-template-columns: 1fr;
+          justify-items: center;
+        }
+      }
+
+      .ring {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        position: relative;
+        background:
+          conic-gradient(
+            var(--primary) calc(var(--p, 0) * 1%),
+            rgba(43, 182, 115, 0.12) 0
+          );
+        display: grid;
+        place-items: center;
+      }
+
+      .ring::before {
+        content: "";
+        position: absolute;
+        inset: 10px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: inset 0 6px 20px rgba(31, 59, 47, 0.08);
+      }
+
+      .time {
+        position: relative;
+        font-size: 44px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 4px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.05s ease, filter 0.2s ease;
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, var(--primary-2), var(--primary));
+        color: white;
+        box-shadow: 0 6px 16px rgba(55, 207, 166, 0.35);
+      }
+
+      .btn-ghost {
+        background: rgba(43, 182, 115, 0.1);
+        color: var(--text);
+      }
+
+      .btn-accent {
+        background: linear-gradient(180deg, #ffe29e, var(--accent));
+        color: #7b5200;
+      }
+
+      .btn-danger {
+        background: linear-gradient(180deg, #ff9e9e, var(--danger));
+        color: white;
+      }
+
+      .side {
+        display: grid;
+        gap: 16px;
+      }
+
+      .input-card {
+        padding: 14px;
+      }
+
+      .input-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: start;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 64px;
+        resize: vertical;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(31, 59, 47, 0.15);
+        outline: none;
+        background: #fff;
+        font: inherit;
+        color: var(--text);
+      }
+
+      textarea:focus {
+        box-shadow: 0 0 0 3px var(--ring);
+        border-color: transparent;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .queue-card {
+        padding: 12px;
+      }
+
+      .queue-title {
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 12px;
+        margin: 6px 6px 2px;
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 32px;
+      }
+
+      .item {
+        background: #fff;
+        border-radius: 12px;
+        padding: 10px 12px;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid rgba(31, 59, 47, 0.08);
+      }
+
+      .item.dragging {
+        opacity: 0.7;
+      }
+
+      .item-title {
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .item-mins {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .item-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 8px 10px;
+        background: rgba(43, 182, 115, 0.08);
+      }
+
+      .k {
+        background: rgba(31, 59, 47, 0.06);
+        border-radius: 8px;
+        padding: 2px 6px;
+        font-size: 11px;
+      }
+
+      .bar {
+        height: 8px;
+        background: rgba(43, 182, 115, 0.15);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .bar > span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          var(--primary),
+          var(--primary-2),
+          var(--accent)
+        );
+        transition: width 0.3s ease;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(31, 59, 47, 0.18);
+        padding: 14px;
+      }
+
+      .overlay.show {
+        display: grid;
+      }
+
+      .dialog {
+        max-width: 480px;
+        width: 100%;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(31, 59, 47, 0.12);
+        padding: 16px;
+      }
+
+      .dialog .title {
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+
+      .dialog .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(31, 59, 47, 0.06);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .switch input {
+        transform: scale(1.1);
+      }
+
+      .empty {
+        padding: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+        border: 1px dashed rgba(31, 59, 47, 0.15);
+        border-radius: 12px;
+        background: #fff;
+      }
+
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <section class="card current" aria-live="polite">
+        <div class="task-title" id="currentTitle"></div>
+
+        <div class="timer-wrap">
+          <div
+            class="ring"
+            id="ring"
+            role="img"
+            aria-label="Timer progress ring"
+          >
+            <div class="time" id="time">00:00</div>
+          </div>
+
+          <div>
+            <div class="row" style="margin-bottom: 8px">
+              <span class="muted">Now</span>
+              <span class="pill">
+                <span class="muted">Remaining</span>
+                <strong id="remainText">0 min</strong>
+              </span>
+            </div>
+            <div class="bar" aria-hidden="true">
+              <span id="bar"></span>
+            </div>
+
+            <div class="controls" style="margin-top: 14px">
+              <button class="btn-primary" id="playPauseBtn">
+                Play
+              </button>
+              <button class="btn-ghost" id="skipBtn">
+                Next
+              </button>
+              <button class="btn-ghost" id="resetBtn">
+                Reset
+              </button>
+              <span class="switch" title="Sound on finish">
+                <input id="soundToggle" type="checkbox" checked />
+                Sound
+              </span>
+              <span class="switch" title="Desktop notifications">
+                <input id="notifyToggle" type="checkbox" />
+                Notify
+              </span>
+            </div>
+
+            <div class="sub" id="playlistInfo"></div>
+          </div>
+        </div>
+
+        <div class="sub">
+          Tips: Enter tasks like
+          <span class="k">make bed (5), brainstorming (20)</span>. Shortcuts:
+          <span class="k">Space</span> Play/Pause,
+          <span class="k">N</span> Next,
+          <span class="k">5</span>/<span class="k">0</span>/<span class="k">=</span>
+          +5/+10/+15.
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="card input-card">
+          <div class="input-row">
+            <textarea
+              id="taskInput"
+              placeholder="make bed (5), do exercise - planking (16), brainstorming (20)"
+            ></textarea>
+            <div style="display: grid; gap: 8px; align-content: start">
+              <button id="addBtn" class="btn-accent">Add</button>
+              <button id="clearBtn" class="btn-ghost">Clear all</button>
+            </div>
+          </div>
+          <div class="hint">
+            Format: task name (minutes). Separate multiple with commas.
+          </div>
+          <div
+            id="parseError"
+            class="hint"
+            style="color: #b54708; display: none"
+          ></div>
+        </section>
+
+        <section class="card queue-card">
+          <div class="queue-title">Up Next</div>
+          <div id="queue" class="list" aria-live="polite"></div>
+        </section>
+
+        <section class="card queue-card">
+          <div class="queue-title">Done</div>
+          <div id="done" class="list"></div>
+          <div style="display: flex; gap: 8px; margin-top: 10px">
+            <button id="clearDoneBtn" class="btn-ghost">Clear done</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+      <div class="dialog">
+        <div class="title" id="dlgTitle">Time's up</div>
+        <div class="muted" id="dlgSub"></div>
+        <div class="actions">
+          <button class="btn-primary" id="dlgNext">Next</button>
+          <button class="btn-accent" data-add="5">+5 min</button>
+          <button class="btn-accent" data-add="10">+10 min</button>
+          <button class="btn-accent" data-add="15">+15 min</button>
+          <button class="btn-ghost" id="dlgRepeat">Repeat</button>
+          <button class="btn-danger" id="dlgStop">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <span class="sr" aria-live="assertive" id="sr"></span>
+
+    <script>
+      // State
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+      const state = {
+        tasks: [],
+        currentIndex: -1,
+        timer: {
+          running: false,
+          id: null,
+          startedAt: 0,
+        },
+        settings: {
+          sound: true,
+          notify: false,
+        },
+      };
+
+      const els = {
+        title: $("#currentTitle"),
+        time: $("#time"),
+        ring: $("#ring"),
+        bar: $("#bar"),
+        remainText: $("#remainText"),
+        playlistInfo: $("#playlistInfo"),
+        queue: $("#queue"),
+        done: $("#done"),
+        addBtn: $("#addBtn"),
+        clearBtn: $("#clearBtn"),
+        clearDoneBtn: $("#clearDoneBtn"),
+        input: $("#taskInput"),
+        parseError: $("#parseError"),
+        playPause: $("#playPauseBtn"),
+        skip: $("#skipBtn"),
+        reset: $("#resetBtn"),
+        soundToggle: $("#soundToggle"),
+        notifyToggle: $("#notifyToggle"),
+        overlay: $("#overlay"),
+        dlgTitle: $("#dlgTitle"),
+        dlgSub: $("#dlgSub"),
+        dlgNext: $("#dlgNext"),
+        dlgRepeat: $("#dlgRepeat"),
+        dlgStop: $("#dlgStop"),
+        sr: $("#sr"),
+      };
+
+      // Persistence
+      const STORAGE_KEY = "todo_playlist_v1";
+
+      function save() {
+        try {
+          const toStore = JSON.stringify({
+            tasks: state.tasks,
+            currentIndex: state.currentIndex,
+            timer: {
+              running: state.timer.running,
+              startedAt: state.timer.startedAt,
+            },
+            settings: state.settings,
+          });
+          localStorage.setItem(STORAGE_KEY, toStore);
+        } catch {}
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const saved = JSON.parse(raw);
+          state.tasks = saved.tasks || [];
+          state.currentIndex =
+            typeof saved.currentIndex === "number"
+              ? saved.currentIndex
+              : -1;
+          state.settings = Object.assign(
+            {},
+            state.settings,
+            saved.settings || {}
+          );
+          els.soundToggle.checked = !!state.settings.sound;
+          els.notifyToggle.checked = !!state.settings.notify;
+        } catch {}
+      }
+
+      // Utilities
+      function uid() {
+        return Math.random().toString(36).slice(2, 9);
+      }
+
+      function mmss(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      }
+
+      function plural(n, w) {
+        return `${n} ${w}${n === 1 ? "" : "s"}`;
+      }
+
+      function announce(msg) {
+        els.sr.textContent = msg;
+      }
+
+      // Parsing
+      function parseTasks(input) {
+        const parts = input
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+
+        const tasks = [];
+        const errors = [];
+
+        for (const part of parts) {
+          const m = part.match(/^(.+?)\s*\((\d+)\)\s*$/);
+          if (!m) {
+            errors.push(`Invalid: "${part}"`);
+            continue;
+          }
+          const title = m[1].trim();
+          const mins = parseInt(m[2], 10);
+          if (!title || !Number.isFinite(mins) || mins <= 0) {
+            errors.push(`Invalid: "${part}"`);
+            continue;
+          }
+          const seconds = mins * 60;
+          tasks.push({
+            id: uid(),
+            title,
+            minutes: mins,
+            totalSeconds: seconds,
+            remainingSeconds: seconds,
+            status: "queued", // queued | active | done
+          });
+        }
+
+        return { tasks, errors };
+      }
+
+      // Render
+      function render() {
+        // Current
+        const cur = state.tasks[state.currentIndex] || null;
+        els.title.textContent = cur ? cur.title : "";
+        const rem = cur ? cur.remainingSeconds : 0;
+        els.time.textContent = mmss(rem);
+        els.remainText.textContent = `${Math.ceil(rem / 60)} min`;
+        const progress =
+          cur && cur.totalSeconds
+            ? ((cur.totalSeconds - rem) / cur.totalSeconds) * 100
+            : 0;
+        const p = Math.max(0, Math.min(100, progress));
+        els.ring.style.setProperty("--p", p.toFixed(2));
+        els.bar.style.width = `${p.toFixed(2)}%`;
+
+        // Playlist info
+        const total = state.tasks.filter((t) => t.status !== "done").length;
+        const idx =
+          cur && cur.status !== "done"
+            ? state.tasks
+                .filter((t) => t.status !== "done")
+                .findIndex((t) => t.id === cur.id) + 1
+            : 0;
+        els.playlistInfo.textContent =
+          total > 0 ? `Item ${idx} of ${total}` : "";
+
+        // Buttons
+        els.playPause.textContent = state.timer.running ? "Pause" : "Play";
+        els.skip.disabled =
+          state.tasks.filter((t) => t.status !== "done").length === 0;
+
+        // Queue list
+        const queueItems = state.tasks.filter((t) => t.status === "queued");
+        els.queue.innerHTML = "";
+        if (queueItems.length === 0) {
+          els.queue.innerHTML =
+            '<div class="empty">No upcoming tasks</div>';
+        } else {
+          for (const t of queueItems) {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.dataset.id = t.id;
+            div.innerHTML = `
+              <div class="item-title" title="${t.title}">${t.title}</div>
+              <div class="item-mins">${t.minutes} min</div>
+              <div class="item-actions">
+                <button class="btn-ghost" data-act="up">↑</button>
+                <button class="btn-ghost" data-act="down">↓</button>
+                <button class="btn-ghost" data-act="edit">✎</button>
+                <button class="btn-danger" data-act="del">✕</button>
+              </div>
+            `;
+            els.queue.appendChild(div);
+          }
+        }
+
+        // Done list
+        const doneItems = state.tasks.filter((t) => t.status === "done");
+        els.done.innerHTML = "";
+        if (doneItems.length === 0) {
+          els.done.innerHTML =
+            '<div class="empty">Nothing completed yet</div>';
+        } else {
+          for (const t of doneItems.slice().reverse()) {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+              <div class="item-title" title="${t.title}">${t.title}</div>
+              <div class="item-mins">${t.minutes} min</div>
+              <div class="item-actions">
+                <button class="btn-ghost" data-resume="${t.id}">↺</button>
+                <button class="btn-danger" data-remove="${t.id}">✕</button>
+              </div>
+            `;
+            els.done.appendChild(div);
+          }
+        }
+
+        save();
+      }
+
+      // Drag-and-drop via SortableJS for queued items
+      function initSortable() {
+        Sortable.create(els.queue, {
+          animation: 150,
+          handle: ".item",
+          ghostClass: "dragging",
+          onEnd: (evt) => {
+            const oldIdx = evt.oldIndex;
+            const newIdx = evt.newIndex;
+            const queued = state.tasks.filter((t) => t.status === "queued");
+            if (
+              oldIdx == null ||
+              newIdx == null ||
+              oldIdx === newIdx ||
+              queued.length === 0
+            )
+              return;
+
+            const movedId = queued[oldIdx].id;
+            const order = queued.map((t) => t.id);
+            order.splice(newIdx, 0, order.splice(oldIdx, 1)[0]);
+
+            // Rebuild tasks keeping active and done in place
+            const active = state.tasks.filter((t) => t.status === "active");
+            const done = state.tasks.filter((t) => t.status === "done");
+            const newQueue = order.map((id) =>
+              state.tasks.find((t) => t.id === id)
+            );
+            state.tasks = [...active, ...newQueue, ...done];
+            render();
+          },
+        });
+      }
+
+      // Timer
+      function startTimer() {
+        const cur = state.tasks[state.currentIndex];
+        if (!cur) return;
+        if (state.timer.id) clearInterval(state.timer.id);
+        state.timer.running = true;
+        state.timer.startedAt = Date.now();
+        state.timer.id = setInterval(tick, 250);
+        render();
+      }
+
+      function pauseTimer() {
+        state.timer.running = false;
+        if (state.timer.id) {
+          clearInterval(state.timer.id);
+          state.timer.id = null;
+        }
+        render();
+      }
+
+      function tick() {
+        const cur = state.tasks[state.currentIndex];
+        if (!cur) {
+          pauseTimer();
+          return;
+        }
+        if (!state.timer.running) return;
+
+        cur.remainingSeconds = Math.max(0, cur.remainingSeconds - 0.25);
+        render();
+
+        if (cur.remainingSeconds <= 0) {
+          pauseTimer();
+          onFinish();
+        }
+      }
+
+      // Finish flow
+      function onFinish() {
+        const cur = state.tasks[state.currentIndex];
+        if (!cur) return;
+        ding();
+        notify(`Time's up: ${cur.title}`, "Choose next or add minutes.");
+        els.dlgTitle.textContent = `Time's up`;
+        els.dlgSub.textContent = `“${cur.title}” finished. What next?`;
+        els.overlay.classList.add("show");
+        announce(`Time's up for ${cur.title}`);
+      }
+
+      function extend(minutes) {
+        const cur = state.tasks[state.currentIndex];
+        if (!cur) return;
+        const delta = minutes * 60;
+        cur.totalSeconds += delta;
+        cur.remainingSeconds += delta;
+        els.overlay.classList.remove("show");
+        startTimer();
+      }
+
+      function nextTask(auto = false) {
+        const cur = state.tasks[state.currentIndex];
+        if (cur) {
+          cur.status = "done";
+        }
+        // Set next from queued list
+        const nextIdx = state.tasks.findIndex((t) => t.status === "queued");
+        if (nextIdx === -1) {
+          state.currentIndex = -1;
+          render();
+          if (!auto) {
+            els.overlay.classList.remove("show");
+          }
+          announce("Playlist complete");
+          return;
+        }
+        state.currentIndex = nextIdx;
+        const nxt = state.tasks[state.currentIndex];
+        nxt.status = "active";
+        nxt.remainingSeconds = nxt.remainingSeconds || nxt.totalSeconds;
+        els.overlay.classList.remove("show");
+        startTimer();
+      }
+
+      function repeatTask() {
+        const cur = state.tasks[state.currentIndex];
+        if (!cur) return;
+        cur.remainingSeconds = cur.totalSeconds = cur.minutes * 60;
+        els.overlay.classList.remove("show");
+        startTimer();
+      }
+
+      function skipToNext() {
+        // Like finishing early but without marking elapsed as full
+        if (state.currentIndex === -1) {
+          nextTask(true);
+          return;
+        }
+        nextTask(true);
+      }
+
+      function resetCurrent() {
+        const cur = state.tasks[state.currentIndex];
+        if (!cur) return;
+        cur.remainingSeconds = cur.minutes * 60;
+        cur.totalSeconds = cur.minutes * 60;
+        render();
+      }
+
+      // Sound & Notifications
+      function ding() {
+        if (!state.settings.sound) return;
+        try {
+          const ctx = new (window.AudioContext ||
+            window.webkitAudioContext)();
+          const g = ctx.createGain();
+          const o1 = ctx.createOscillator();
+          const o2 = ctx.createOscillator();
+          o1.type = "sine";
+          o2.type = "sine";
+          o1.frequency.value = 880;
+          o2.frequency.value = 1320;
+          o1.connect(g);
+          o2.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.0001, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
+          o1.start();
+          o2.start();
+          setTimeout(() => {
+            g.gain.exponentialRampToValueAtTime(
+              0.0001,
+              ctx.currentTime + 0.25
+            );
+            o1.stop();
+            o2.stop();
+            ctx.close();
+          }, 260);
+        } catch {}
+      }
+
+      function requestNotifyPermission() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission === "default") {
+          Notification.requestPermission().then((p) => {
+            state.settings.notify = p === "granted";
+            els.notifyToggle.checked = state.settings.notify;
+            save();
+          });
+        }
+      }
+
+      function notify(title, body) {
+        if (!state.settings.notify) return;
+        if (!("Notification" in window)) return;
+        if (Notification.permission !== "granted") return;
+        try {
+          new Notification(title, { body });
+        } catch {}
+      }
+
+      // Actions
+      function handleAdd() {
+        const val = els.input.value.trim();
+        if (!val) return;
+        const { tasks, errors } = parseTasks(val);
+        if (errors.length) {
+          els.parseError.style.display = "block";
+          els.parseError.textContent = errors.join(" • ");
+          setTimeout(() => {
+            els.parseError.style.display = "none";
+          }, 4000);
+        }
+        if (tasks.length === 0) return;
+        state.tasks.push(...tasks);
+        // If nothing active, pick first queued to be current but not auto-run
+        if (state.currentIndex === -1) {
+          const idx = state.tasks.findIndex((t) => t.status === "queued");
+          if (idx !== -1) {
+            state.currentIndex = idx;
+            state.tasks[idx].status = "active";
+          }
+        }
+        els.input.value = "";
+        render();
+      }
+
+      function handleQueueClick(e) {
+        const item = e.target.closest(".item");
+        if (!item) return;
+        const id = item.dataset.id;
+        const task = state.tasks.find((t) => t.id === id);
+        if (!task) return;
+        const act = e.target.getAttribute("data-act");
+        if (!act) return;
+
+        const queued = state.tasks.filter((t) => t.status === "queued");
+        const idxQ = queued.findIndex((t) => t.id === id);
+        const applyReorder = (from, to) => {
+          const order = queued.map((t) => t.id);
+          if (to < 0 || to >= order.length) return;
+          order.splice(to, 0, order.splice(from, 1)[0]);
+          const active = state.tasks.filter((t) => t.status === "active");
+          const done = state.tasks.filter((t) => t.status === "done");
+          const newQueue = order.map((idQ) =>
+            state.tasks.find((t) => t.id === idQ)
+          );
+          state.tasks = [...active, ...newQueue, ...done];
+          render();
+        };
+
+        if (act === "up") applyReorder(idxQ, idxQ - 1);
+        if (act === "down") applyReorder(idxQ, idxQ + 1);
+        if (act === "edit") {
+          const name = prompt("Edit task name:", task.title);
+          if (name == null) return;
+          const minsStr = prompt(
+            "Edit minutes (positive integer):",
+            String(task.minutes)
+          );
+          if (minsStr == null) return;
+          const mins = parseInt(minsStr, 10);
+          if (!Number.isFinite(mins) || mins <= 0) return;
+          task.title = name.trim();
+          task.minutes = mins;
+          task.totalSeconds = mins * 60;
+          task.remainingSeconds = mins * 60;
+          render();
+        }
+        if (act === "del") {
+          const idx = state.tasks.findIndex((t) => t.id === id);
+          if (idx !== -1) state.tasks.splice(idx, 1);
+          render();
+        }
+      }
+
+      function handleDoneClick(e) {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const resumeId = btn.getAttribute("data-resume");
+        const removeId = btn.getAttribute("data-remove");
+        if (resumeId) {
+          const t = state.tasks.find((x) => x.id === resumeId);
+          if (t) {
+            t.status = "queued";
+            t.remainingSeconds = t.minutes * 60;
+            t.totalSeconds = t.minutes * 60;
+            render();
+          }
+        }
+        if (removeId) {
+          const idx = state.tasks.findIndex((x) => x.id === removeId);
+          if (idx !== -1) state.tasks.splice(idx, 1);
+          render();
+        }
+      }
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        const tag = e.target.tagName.toLowerCase();
+        const typing =
+          tag === "input" || tag === "textarea" || e.metaKey || e.ctrlKey;
+
+        if (e.code === "Space" && !typing) {
+          e.preventDefault();
+          if (state.timer.running) pauseTimer();
+          else {
+            // if no active, set first
+            if (state.currentIndex === -1) {
+              nextTask(true);
+            } else startTimer();
+          }
+        }
+
+        if (e.key.toLowerCase() === "n" && !typing) {
+          e.preventDefault();
+          skipToNext();
+        }
+
+        // +5/+10/+15
+        if (!typing) {
+          if (e.key === "5") extend(5);
+          if (e.key === "0") extend(10);
+          if (e.key === "=" || e.key === "+") extend(15);
+        }
+      });
+
+      // Event bindings
+      els.addBtn.addEventListener("click", handleAdd);
+      els.input.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "enter") {
+          handleAdd();
+        }
+      });
+      els.clearBtn.addEventListener("click", () => {
+        pauseTimer();
+        state.tasks = [];
+        state.currentIndex = -1;
+        render();
+      });
+      els.clearDoneBtn.addEventListener("click", () => {
+        state.tasks = state.tasks.filter((t) => t.status !== "done");
+        render();
+      });
+
+      els.playPause.addEventListener("click", () => {
+        if (state.timer.running) pauseTimer();
+        else {
+          if (state.currentIndex === -1) {
+            nextTask(true);
+          } else startTimer();
+        }
+      });
+
+      els.skip.addEventListener("click", skipToNext);
+      els.reset.addEventListener("click", resetCurrent);
+
+      els.soundToggle.addEventListener("change", (e) => {
+        state.settings.sound = e.target.checked;
+        save();
+      });
+      els.notifyToggle.addEventListener("change", (e) => {
+        state.settings.notify = e.target.checked;
+        save();
+        if (state.settings.notify) requestNotifyPermission();
+      });
+
+      els.queue.addEventListener("click", handleQueueClick);
+      els.done.addEventListener("click", handleDoneClick);
+
+      // Dialog
+      els.dlgNext.addEventListener("click", () => nextTask());
+      els.dlgStop.addEventListener("click", () => {
+        els.overlay.classList.remove("show");
+        pauseTimer();
+      });
+      els.dlgRepeat.addEventListener("click", repeatTask);
+      $$(".dialog [data-add]").forEach((b) => {
+        b.addEventListener("click", () =>
+          extend(parseInt(b.getAttribute("data-add"), 10))
+        );
+      });
+      els.overlay.addEventListener("click", (e) => {
+        if (e.target === els.overlay) els.overlay.classList.remove("show");
+      });
+
+      // Init
+      load();
+      // If there is an active from previous session, ensure it's at index
+      const activeIdx = state.tasks.findIndex((t) => t.status === "active");
+      if (activeIdx !== -1) {
+        state.currentIndex = activeIdx;
+      } else if (state.tasks.length > 0) {
+        const firstQueued = state.tasks.findIndex((t) => t.status === "queued");
+        if (firstQueued !== -1) {
+          state.currentIndex = firstQueued;
+          state.tasks[firstQueued].status = "active";
+        }
+      } else {
+        // Prime with example placeholder (not visible content)
+      }
+
+      render();
+      initSortable();
+
+      // Ask for notification permission early if toggled
+      if (state.settings.notify) requestNotifyPermission();
+    </script>
+  </body>
+</html>
